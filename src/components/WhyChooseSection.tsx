@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check } from 'lucide-react';
-import whyChooseAthlete from '@/assets/why-choose-athlete.jpg';
+import whyChooseAthlete from '@/assets/athlet 6.png';
 
 
 const WhyChooseSection = () => {
