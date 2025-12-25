@@ -9,14 +9,18 @@ import GallerySection from '@/components/GallerySection';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 
-const Index = () => {
+interface IndexProps {
+  loadingComplete?: boolean;
+}
+
+const Index = ({ loadingComplete = false }: IndexProps) => {
   return (
     <main className="bg-background min-h-screen">
       {/* SEO Meta - handled in index.html */}
       
       <Navbar />
       
-      <HeroSection />
+      <HeroSection loadingComplete={loadingComplete} />
       
       <FeaturesBanner />
       

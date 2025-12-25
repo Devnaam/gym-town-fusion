@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 
+
 const PricingSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -16,12 +18,15 @@ const PricingSection = () => {
       { threshold: 0.2 }
     );
 
+
     if (sectionRef.current) {
       observer.observe(sectionRef.current);
     }
 
+
     return () => observer.disconnect();
   }, []);
+
 
   const plans = [
     {
@@ -56,22 +61,8 @@ const PricingSection = () => {
         'Nutrition plan included',
       ],
     },
-    {
-      name: 'Standard Membership',
-      price: '₹1,650',
-      period: 'Month',
-      featured: false,
-      features: [
-        'Unlimited gym access',
-        'Personal training included',
-        'Question and answer session',
-        'Video instruction of workouts',
-        'Supplement consulting and diet',
-        'Gym bag',
-        'Payment flexibility',
-      ],
-    },
   ];
+
 
   return (
     <section ref={sectionRef} className="py-20 lg:py-32 bg-background relative overflow-hidden">
@@ -82,6 +73,7 @@ const PricingSection = () => {
             ONLINE <span className="text-gradient-primary">PACKAGE</span>
           </h2>
         </div>
+
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
@@ -102,6 +94,7 @@ const PricingSection = () => {
                 </div>
               )}
 
+
               {/* Plan Header */}
               <div className="text-center mb-8">
                 <h3 className="font-semibold text-foreground text-lg mb-4">
@@ -115,6 +108,7 @@ const PricingSection = () => {
                 </div>
               </div>
 
+
               {/* Features */}
               <div className="space-y-4 mb-8">
                 {plan.features.map((feature, featureIndex) => (
@@ -126,6 +120,7 @@ const PricingSection = () => {
                   </div>
                 ))}
               </div>
+
 
               {/* CTA Button */}
               <Button
@@ -142,5 +137,6 @@ const PricingSection = () => {
     </section>
   );
 };
+
 
 export default PricingSection;
