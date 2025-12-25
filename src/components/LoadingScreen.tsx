@@ -1,203 +1,146 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-
-const LoadingScreen = () => {
+const LoadingScreen = ({ onFinished }) => {
   const [progress, setProgress] = useState(0);
-  const [dots, setDots] = useState('');
+  const [statusIndex, setStatusIndex] = useState(0);
+  const [isExit, setIsExit] = useState(false);
 
+  const loadingStatuses = [
+    "ASSEMBLING RACK",
+    "CALIBRATING PLATES",
+    "HEATING UP",
+    "MAXING OUT",
+    "LIFT OFF"
+  ];
 
   useEffect(() => {
-    const progressInterval = setInterval(() => {
+    const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(progressInterval);
+          clearInterval(timer);
+          setTimeout(() => setIsExit(true), 500);
+          setTimeout(() => onFinished?.(), 1200);
           return 100;
         }
-        return prev + 1;
+        const diff = Math.random() * 15;
+        return Math.min(prev + diff, 100);
       });
-    }, 25);
+    }, 250);
 
+    return () => clearInterval(timer);
+  }, [onFinished]);
 
-    const dotsInterval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
-    }, 400);
-
-
-    return () => {
-      clearInterval(progressInterval);
-      clearInterval(dotsInterval);
-    };
-  }, []);
-
+  useEffect(() => {
+    const segment = Math.floor(progress / 25);
+    setStatusIndex(Math.min(segment, loadingStatuses.length - 1));
+  }, [progress]);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 animate-pulse-slow"></div>
+    <div className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden transition-transform duration-700 ease-in-out ${isExit ? '-translate-y-full' : 'translate-y-0'}`}>
       
-      {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-primary/30 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 4}s`,
-            }}
-          />
-        ))}
+      {/* 1. Industrial Background */}
+      <div className="absolute inset-0 bg-[#070707]">
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `radial-gradient(#222 1px, transparent 1px)`, backgroundSize: '24px 24px' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-600/5 blur-[100px] rounded-full animate-pulse"></div>
       </div>
 
-
-      {/* Main content */}
-      <div className="relative z-10 text-center space-y-12 px-4">
-        {/* Animated Logo with glow */}
-        <div className="relative">
-          <div className="absolute inset-0 blur-3xl opacity-50">
-            <h1 className="font-display text-6xl sm:text-7xl lg:text-9xl leading-none tracking-wider">
-              <span className="text-primary">GYM</span>
-              <br />
-              <span className="text-accent">TOWN</span>
-            </h1>
+      {/* 2. Main Content */}
+      <div className={`relative z-10 flex flex-col items-center transition-all duration-500 ${isExit ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        
+        {/* Branding */}
+        <div className="mb-10 text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <span className="h-[1px] w-8 bg-orange-500/50"></span>
+            <h2 className="text-[10px] font-bold tracking-[0.6em] text-orange-500 uppercase">Est. 2025</h2>
+            <span className="h-[1px] w-8 bg-orange-500/50"></span>
           </div>
-          <h1 className="relative font-display text-6xl sm:text-7xl lg:text-9xl leading-none tracking-wider animate-pulse-slow">
-            <span className="text-foreground">GYM</span>
-            <br />
-            <span className="text-gradient-primary">TOWN</span>
+          <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter text-white">
+            GYM<span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>TOWN</span>
           </h1>
         </div>
 
+        {/* 3. The Central "Plate" Animation */}
+        <div className="relative flex items-center justify-center">
+          {/* Outer Progress Circle */}
+          <svg className="w-56 h-56 transform -rotate-90">
+            <circle cx="112" cy="112" r="105" stroke="rgba(255,255,255,0.03)" strokeWidth="1" fill="none" />
+            <circle
+              cx="112" cy="112" r="105"
+              stroke="#f97316"
+              strokeWidth="3"
+              fill="none"
+              strokeDasharray={660}
+              strokeDashoffset={660 - (660 * progress) / 100}
+              strokeLinecap="butt"
+              className="transition-all duration-500 ease-out"
+            />
+          </svg>
 
-        {/* Premium Animated Dumbbell */}
-        <div className="flex items-center justify-center">
-          <div className="w-48 sm:w-64 animate-bounce" style={{ filter: 'drop-shadow(0 15px 25px rgba(255, 105, 56, 0.3))' }}>
-            <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-              {/* Left Weight Plates */}
-              <rect x="10" y="10" width="16" height="80" rx="4" fill="url(#leftWeightOuter)">
-                <animate attributeName="height" values="80;75;80" dur="1s" repeatCount="indefinite" />
-                <animate attributeName="y" values="10;12.5;10" dur="1s" repeatCount="indefinite" />
-              </rect>
-              <rect x="26" y="20" width="12" height="60" rx="2" fill="url(#leftWeightInner)">
-                <animate attributeName="height" values="60;56;60" dur="1s" repeatCount="indefinite" />
-                <animate attributeName="y" values="20;22;20" dur="1s" repeatCount="indefinite" />
-              </rect>
-              
-              {/* Right Weight Plates */}
-              <rect x="174" y="10" width="16" height="80" rx="4" fill="url(#rightWeightOuter)">
-                <animate attributeName="height" values="80;75;80" dur="1s" repeatCount="indefinite" begin="0.1s" />
-                <animate attributeName="y" values="10;12.5;10" dur="1s" repeatCount="indefinite" begin="0.1s" />
-              </rect>
-              <rect x="162" y="20" width="12" height="60" rx="2" fill="url(#rightWeightInner)">
-                <animate attributeName="height" values="60;56;60" dur="1s" repeatCount="indefinite" begin="0.1s" />
-                <animate attributeName="y" values="20;22;20" dur="1s" repeatCount="indefinite" begin="0.1s" />
-              </rect>
-              
-              {/* Central Bar/Handle */}
-              <rect x="38" y="41" width="124" height="18" rx="2" fill="url(#metalGradient)"/>
-              
-              {/* Grip Texture */}
-              <g stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.4" className="text-muted">
-                <path d="M70 41v18M75 41v18M80 41v18M85 41v18M90 41v18M95 41v18M100 41v18M105 41v18M110 41v18M115 41v18M120 41v18M125 41v18M130 41v18"/>
-              </g>
-
-              {/* Gradients */}
-              <defs>
-                {/* Left weights - Primary color */}
-                <linearGradient id="leftWeightOuter" x1="18" y1="10" x2="18" y2="90" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="hsl(18, 100%, 65%)" />
-                  <stop offset="0.5" stopColor="hsl(18, 100%, 60%)" />
-                  <stop offset="1" stopColor="hsl(18, 100%, 50%)" />
-                </linearGradient>
-                <linearGradient id="leftWeightInner" x1="32" y1="20" x2="32" y2="80" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="hsl(18, 100%, 70%)" />
-                  <stop offset="1" stopColor="hsl(18, 100%, 55%)" />
-                </linearGradient>
-
-                {/* Right weights - Accent color */}
-                <linearGradient id="rightWeightOuter" x1="182" y1="10" x2="182" y2="90" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="hsl(153, 100%, 55%)" />
-                  <stop offset="0.5" stopColor="hsl(153, 100%, 50%)" />
-                  <stop offset="1" stopColor="hsl(153, 100%, 45%)" />
-                </linearGradient>
-                <linearGradient id="rightWeightInner" x1="168" y1="20" x2="168" y2="80" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="hsl(153, 100%, 60%)" />
-                  <stop offset="1" stopColor="hsl(153, 100%, 50%)" />
-                </linearGradient>
-
-                {/* Bar gradient - Metallic */}
-                <linearGradient id="metalGradient" x1="100" y1="41" x2="100" y2="59" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#95a5a6" />
-                  <stop offset="0.5" stopColor="#dcdde1" />
-                  <stop offset="1" stopColor="#7f8c8d" />
-                </linearGradient>
-              </defs>
-            </svg>
+          {/* Calibrated Weight Plate SVG */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              className="w-40 h-40 transition-transform duration-700"
+              style={{ transform: `rotate(${progress * 3.6}deg)` }}
+            >
+              <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
+                {/* Main Plate Body */}
+                <circle cx="100" cy="100" r="95" fill="#1a1a1a" stroke="#222" strokeWidth="2" />
+                <circle cx="100" cy="100" r="85" fill="none" stroke="#2a2a2a" strokeWidth="8" />
+                
+                {/* Plate Inner Ring (Metal Hub) */}
+                <circle cx="100" cy="100" r="30" fill="#222" />
+                <circle cx="100" cy="100" r="22" fill="#333" stroke="#444" strokeWidth="1" />
+                <circle cx="100" cy="100" r="12" fill="#0a0a0a" /> {/* Center Hole */}
+                
+                {/* Plate Labels */}
+                <text x="100" y="60" textAnchor="middle" fill="#444" className="text-[14px] font-black tracking-widest uppercase" style={{ fontStyle: 'normal' }}>GTX-Elite</text>
+                <text x="100" y="155" textAnchor="middle" fill="#f97316" className="text-[24px] font-black italic" style={{ fontStyle: 'normal' }}>20KG</text>
+                
+                {/* Decorative Rivets */}
+                <circle cx="100" cy="35" r="2" fill="#333" />
+                <circle cx="100" cy="165" r="2" fill="#333" />
+                <circle cx="35" cy="100" r="2" fill="#333" />
+                <circle cx="165" cy="100" r="2" fill="#333" />
+              </svg>
+            </div>
           </div>
         </div>
 
-
-        {/* Premium circular progress */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-32 h-32">
-            {/* Background circle */}
-            <svg className="w-32 h-32 transform -rotate-90">
-              <circle
-                cx="64"
-                cy="64"
-                r="56"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="none"
-                className="text-muted opacity-20"
-              />
-              {/* Progress circle */}
-              <circle
-                cx="64"
-                cy="64"
-                r="56"
-                stroke="url(#gradient)"
-                strokeWidth="8"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 56}`}
-                strokeDashoffset={`${2 * Math.PI * 56 * (1 - progress / 100)}`}
-                className="transition-all duration-300 ease-out"
-              />
-              <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="hsl(18, 100%, 60%)" />
-                  <stop offset="100%" stopColor="hsl(153, 100%, 50%)" />
-                </linearGradient>
-              </defs>
-            </svg>
-            
-            {/* Center percentage */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-display text-3xl text-foreground">{progress}%</span>
-            </div>
+        {/* 4. Statistics Display */}
+        <div className="mt-12 flex flex-col items-center">
+          <div className="flex items-center gap-4 mb-4">
+             <div className="flex flex-col items-end">
+                <span className="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">Power Output</span>
+                <span className="text-white font-black italic leading-none text-xl">{(progress * 1.5).toFixed(0)}%</span>
+             </div>
+             <div className="w-[1px] h-8 bg-white/10"></div>
+             <div className="flex flex-col items-start">
+                <span className="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">Status</span>
+                <span className="text-orange-500 font-black italic leading-none text-xl">{loadingStatuses[statusIndex]}</span>
+             </div>
           </div>
-
-
-          {/* Loading text with animated dots */}
-          <div className="space-y-2">
-            <p className="text-foreground font-semibold text-lg">
-              Preparing Your Workout{dots}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {progress < 30 && "Loading gym equipment..."}
-              {progress >= 30 && progress < 60 && "Setting up training programs..."}
-              {progress >= 60 && progress < 90 && "Getting trainers ready..."}
-              {progress >= 90 && "Almost there..."}
-            </p>
+          
+          {/* Minimal Progress Bar */}
+          <div className="w-64 h-[2px] bg-white/5 relative overflow-hidden">
+            <div 
+                className="absolute inset-y-0 left-0 bg-orange-500 transition-all duration-300"
+                style={{ width: `${progress}%` }}
+            ></div>
           </div>
+        </div>
+      </div>
+
+      {/* Aesthetic Technical Overlays */}
+      <div className="absolute top-8 left-8 flex flex-col gap-1">
+        <span className="text-[9px] font-mono text-white/20 tracking-widest">SYSTEM_INIT_0x24</span>
+        <div className="flex gap-1">
+            <div className="w-1 h-1 bg-orange-500"></div>
+            <div className="w-1 h-1 bg-white/10"></div>
+            <div className="w-1 h-1 bg-white/10"></div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default LoadingScreen;
